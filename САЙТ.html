@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>3D MONOLITH MONSTER 2025 — 3D ПЕЧАТЬКРАФТ</title>
+    <style>
+        :root { --accent: #2a52be; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; font-size: 13px; }
+        
+        body, label, select, input, button, div, b, span { 
+            text-shadow: 1px 1px 1px #000, -1px 1px 1px #000, 1px -1px 1px #000, -1px -1px 1px #000; 
+            color: #fff;
+        }
+
+        .contact-bar { background: rgba(42, 82, 190, 0.2); padding: 10px; width: 780px; text-align: center; border-radius: 10px; margin-bottom: 10px; border: 1px solid #334155; display: flex; justify-content: center; gap: 20px; align-items: center; }
+        .vk-link { color: #0ea5e9; text-decoration: none; font-weight: 800; }
+
+        .card { background: var(--card); border-radius: 20px; padding: 20px; width: 780px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); border: 1px solid #334155; position: relative; }
+        #viewport-container { position: relative; width: 100%; height: 380px; background: radial-gradient(circle at center, #f8fafc 0%, #cbd5e1 100%); border-radius: 15px; margin-bottom: 15px; border: 2px solid #475569; overflow: hidden; touch-action: none; }
+        canvas { width: 100%; height: 100%; display: block; }
+
+        #admin-panel { display:none; background:#1e293b; padding:20px; border-radius:15px; border:2px solid var(--accent); position:absolute; z-index:200; width:90%; left:5%; top:5%; box-shadow: 0 0 100px #000; }
+        #style-trigger { position: absolute; top: 15px; right: 15px; width: 35px; height: 35px; background: rgba(15,23,42,0.8); border: 1px solid var(--accent); border-radius: 10px; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 50; font-size: 18px; }
+        #style-menu { display: none; position: absolute; top: 60px; right: 15px; background: #1e293b; border: 1px solid var(--accent); padding: 12px; border-radius: 12px; z-index: 50; width: 130px; flex-wrap: wrap; justify-content: center; gap: 5px; }
+        .color-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; }
+        
+        #loader { display: none; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(15,23,42,0.9); z-index: 100; justify-content: center; align-items: center; flex-direction: column; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #334155; border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 10px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .grid-ui { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px; }
+        .input-group { display: flex; flex-direction: column; gap: 4px; }
+        label { font-size: 8px; font-weight: 800; color: #cbd5e1; text-transform: uppercase; }
+        select, input, button { background: #0f172a; color: white; border: 1px solid #475569; padding: 10px; border-radius: 8px; font-size: 12px; outline: none; width: 100%; box-sizing: border-box; }
+        #price-val { font-size: 58px; font-weight: 900; color: #38bdf8; text-align: center; margin: 10px 0; }
+        .btn-main { background: var(--accent); border: none; font-weight: 900; cursor: pointer; padding: 18px; border-radius: 12px; width: 100%; text-transform: uppercase; margin-bottom: 10px; }
+        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 12px; }
+    </style>
+</head>
+<body>
+
+<div class="contact-bar">
+    <span>📍 Красноярский край, г.Шарыпово</span>
+    <span>📞 +7 923 361 50 52</span>
+    <a href="vk.ru" class="vk-link" target="_blank">3D ПечатьКрафт</a>
+    <script type="text/javascript">
+        document.write("<a href='//www.liveinternet.ru/click' target=_blank><img src='//counter.yadro.ru/hit?t26.1;r"+escape(document.referrer)+((typeof(screen)=="undefined")?"":";s"+screen.width+"*"+screen.height+"*"+(screen.colorDepth?screen.colorDepth:screen.pixelDepth))+";u"+escape(document.URL)+";"+Math.random()+"' border='0' width='88' height='15' title='Статистика'><\/a>")
+    </script>
+</div>
+
+<div class="card">
+    <div id="admin-panel">
+        <h3 style="margin:0 0 15px 0">Настройки Студии</h3>
+        <label>Название</label><input type="text" id="bn-name">
+        <label>Контакты</label><input type="text" id="bn-tel">
+        <button onclick="saveBrand()" style="background:#10b981; margin-top:15px;">СОХРАНИТЬ</button>
+        <button onclick="document.getElementById('admin-panel').style.display='none'" style="background:none;">ОТМЕНА</button>
+    </div>
+
+    <div id="brand-header" onclick="document.getElementById('admin-panel').style.display='block'" style="cursor:pointer; text-align:center; font-weight:900; color:var(--accent); font-size:10px; margin-bottom:10px; letter-spacing:2px;">
+        ⚙️ 3D ПЕЧАТЬКРАФТ • SUPREME EDITION • 2025
+    </div>
+
+    <div id="viewport-container">
+        <div id="style-trigger">🎨</div>
+        <div id="style-menu">
+            <div class="color-dot" style="background:#2A52BE" onclick="setMeshColor(0.16, 0.32, 0.74)"></div>
+            <div class="color-dot" style="background:#FFFFFF" onclick="setMeshColor(1,1,1)"></div>
+            <div class="color-dot" style="background:#D3D3D3" onclick="setMeshColor(0.8,0.8,0.8)"></div>
+            <div class="color-dot" style="background:#90EE90" onclick="setMeshColor(0.56,0.93,0.56)"></div>
+            <div class="color-dot" style="background:#FFFF00" onclick="setMeshColor(1,1,0)"></div>
+            <div class="color-dot" style="background:#C8A2C8" onclick="setMeshColor(0.78,0.64,0.78)"></div>
+        </div>
+        <div id="loader"><div class="spinner"></div><b>АНАЛИЗ STL...</b></div>
+        <canvas id="glCanvas"></canvas>
+    </div>
+
+    <div class="grid-ui">
+        <div class="input-group"><label>Технология</label><select id="tech" onchange="updateMaterials()"><option value="fdm">FDM (Пластик)</option><option value="sla">SLA (Смола)</option></select></div>
+        <div class="input-group"><label>Материал</label><select id="mat" onchange="syncMatPrice()"></select></div>
+        <div class="input-group"><label>Плотность</label><input type="number" id="manual-dens" step="0.01" oninput="autoCalculate()"></div>
+        <div class="input-group"><label>Цена ₽/кг</label><input type="number" id="manual-price" oninput="autoCalculate()"></div>
+    </div>
+
+    <div class="grid-ui">
+        <div class="input-group"><label>Время (ч)</label><input type="number" id="manual-time" step="0.1" value="0" oninput="autoCalculate()"></div>
+        <div class="input-group"><label>Заполнение %</label><select id="infill" onchange="autoCalculate()"></select></div>
+        <div class="input-group"><label>Брак / Поддержки</label><select id="waste" onchange="autoCalculate()"></select></div>
+        <div class="input-group"><label>Срочность</label><select id="urgent" onchange="autoCalculate()"></select></div>
+    </div>
+
+    <div class="grid-ui">
+        <div class="input-group" style="grid-column: span 2;"><label>Заказчик</label><input type="text" id="client-name" placeholder="ФИО / Организация"></div>
+        <div class="input-group"><label>Моделинг (₽)</label><input type="number" id="modelling" value="0" oninput="autoCalculate()"></div>
+        <div class="input-group"><label>Скидка (%)</label><input type="number" id="discount" value="0" oninput="autoCalculate()"></div>
+    </div>
+
+    <button class="btn-main" onclick="document.getElementById('f-inp').click()">📁 ЗАГРУЗИТЬ STL МОДЕЛЬ</button>
+    <input type="file" id="f-inp" accept=".stl" style="display:none">
+
+    <div id="price-val">0 ₽</div>
+    
+    <div class="stats">
+        <div class="stat-box"><span>ЧИСТЫЙ ВЕС</span><b id="st-w-net">0.00 г</b></div>
+        <div class="stat-box"><span>ИТОГО ВЕС</span><b id="st-w-total">0.00 г</b></div>
+        <div class="stat-box"><span>ОБЪЕМ</span><b id="st-v">0.00 см³</b></div>
+        <div class="stat-box"><span>РЕГИОН</span><select id="region" onchange="autoCalculate()"></select></div>
+    </div>
+</div>
+
+<script>
+const CONFIG = {
+    STUDIO_NAME: "3D ПЕЧАТЬКРАФТ", STUDIO_CONTACTS: "+7 923 361 50 52", HOURLY: 150, MARGIN: 1.3,
+    MATERIALS: {
+        fdm: [
+            {n:"ABS Standard", d:1.05, p:1200}, {n:"PLA Speed", d:1.24, p:1300}, {n:"PETG Advanced", d:1.27, p:1500}, 
+            {n:"PA12-CF Carbon", d:1.05, p:6500}, {n:"TPU Elastic", d:1.21, p:3500}, {n:"ASA Weather", d:1.07, p:2100}
+        ],
+        sla: [
+            {n:"SLA: Standard", d:1.15, p:4500}, {n:"SLA: Engineering Tough", d:1.20, p:12000},
+            {n:"SLA: Dental", d:1.25, p:35000}, {n:"SLA: High Temp", d:1.30, p:25000}, {n:"SLA: Water-Washable", d:1.12, p:5500}
+        ]
+    }
+};
+
+let gl, vbo, count=0, realVol=0, rotX=0.6, rotY=0.7, zoom=1.1, isDown=false, modelSize={x:0,y:0,z:0};
+let meshColor = [0.16, 0.32, 0.74]; // Default: #2A52BE
+
+// УМНЫЙ ВОРКЕР (Парсит и ASCII и Binary)
+const workerCode = `
+    self.onmessage = function(e) {
+        const buf = e.data;
+        const header = new TextDecoder().decode(buf.slice(0, 80));
+        let pts, vol = 0, min = [1e9,1e9,1e9], max = [-1e9,-1e9,-1e9];
+
+        if (!header.trim().startsWith("solid")) {
+            const dv = new DataView(buf);
+            const nT = dv.getUint32(80, true); 
+            pts = new Float32Array(nT * 18);
+            for (let i = 0; i < nT; i++) {
+                let o = 84 + i * 50;
+                let v1 = [dv.getFloat32(o+12,true), dv.getFloat32(o+16,true), dv.getFloat32(o+20,true)];
+                let v2 = [dv.getFloat32(o+24,true), dv.getFloat32(o+28,true), dv.getFloat32(o+32,true)];
+                let v3 = [dv.getFloat32(o+36,true), dv.getFloat32(o+40,true), dv.getFloat32(o+44,true)];
+                vol += (-v3[0]*v2[1]*v1[2] + v2[0]*v3[1]*v1[2] + v3[0]*v1[1]*v2[2] - v1[0]*v3[1]*v2[2] - v2[0]*v1[1]*v3[2] + v1[0]*v2[1]*v3[2]) / 6;
+                [v1,v2,v3].forEach(v => { for(let j=0;j<3;j++){ min[j]=Math.min(min[j],v[j]); max[j]=Math.max(max[j],v[j]); } });
+                let nx = (v2[1]-v1[1])*(v3[2]-v1[2])-(v2[2]-v1[2])*(v3[1]-v1[1]);
+                let ny = (v2[2]-v1[2])*(v3[0]-v1[0])-(v2[0]-v1[0])*(v3[2]-v1[2]);
+                let nz = (v2[0]-v1[0])*(v3[1]-v1[1])-(v2[1]-v1[1])*(v3[0]-v1[0]);
+                let l = Math.sqrt(nx*nx+ny*ny+nz*nz)||1;
+                pts.set([...v1, nx/l, ny/l, nz/l, ...v2, nx/l, ny/l, nz/l, ...v3, nx/l, ny/l, nz/l], i * 18);
+            }
+        } else {
+            const txt = new TextDecoder().decode(buf);
+            const vs = [];
+            txt.split('\\n').forEach(l => {
+                const m = l.trim().match(/vertex\\s+(-?\\d+\\.?\\d*e?-?\\d*)\\s+(-?\\d+\\.?\\d*e?-?\\d*)\\s+(-?\\d+\\.?\\d*e?-?\\d*)/i);
+                if (m) {
+                    let p = [parseFloat(m[1]), parseFloat(m[2]), parseFloat(m[3])];
+                    vs.push(p);
+                    for(let j=0;j<3;j++){ min[j]=Math.min(min[j],p[j]); max[j]=Math.max(max[j],p[j]); }
+                }
+            });
+            pts = new Float32Array(vs.length * 6);
+            for(let i=0; i<vs.length; i+=3) {
+                let v1=vs[i], v2=vs[i+1], v3=vs[i+2];
+                vol += (-v3[0]*v2[1]*v1[2] + v2[0]*v3[1]*v1[2] + v3[0]*v1[1]*v2[2] - v1[0]*v3[1]*v2[2] - v2[0]*v1[1]*v3[2] + v1[0]*v2[1]*v3[2]) / 6;
+                pts.set([...v1,0,0,1, ...v2,0,0,1, ...v3,0,0,1], i*6);
+            }
+        }
+        
+        const ctr = [(min[0]+max[0])/2, (min[1]+max[1])/2, (min[2]+max[2])/2];
+        const sc = 1.3 / (Math.max(max[0]-min[0], max[1]-min[1], max[2]-min[2]) || 1);
+        for(let i=0; i<pts.length; i+=6) { pts[i]=(pts[i]-ctr[0])*sc; pts[i+1]=(pts[i+1]-ctr[1])*sc; pts[i+2]=(pts[i+2]-ctr[2])*sc; }
+        self.postMessage({ pts, vol: Math.abs(vol)/1000, min, max }, [pts.buffer]);
+    };
+`;
+
+const worker = new Worker(URL.createObjectURL(new Blob([workerCode])));
+
+function initGL() {
+    const cvs = document.getElementById('glCanvas'); gl = cvs.getContext('webgl');
+    const s = (t, src) => { const sh = gl.createShader(t); gl.shaderSource(sh, src); gl.compileShader(sh); return sh; };
+    const prog = gl.createProgram();
+    gl.attachShader(prog, s(gl.VERTEX_SHADER, `attribute vec3 p, n; uniform mat4 m; uniform float asp; varying vec3 vN; void main(){ vN = normalize((m * vec4(n, 0.0)).xyz); vec4 pos = m * vec4(p, 1.0); pos.x /= asp; gl_Position = pos; }`));
+    gl.attachShader(prog, s(gl.FRAGMENT_SHADER, `precision highp float; varying vec3 vN; uniform vec3 uCol; void main(){ float d = abs(dot(normalize(vN), normalize(vec3(0.5, 0.7, 1.0)))) * 0.4 + 0.6; gl_FragColor = vec4(uCol * d, 1.0); }`));
+    gl.linkProgram(prog); gl.useProgram(prog);
+    locs = { p: gl.getAttribLocation(prog, "p"), n: gl.getAttribLocation(prog, "n"), m: gl.getUniformLocation(prog, "m"), asp: gl.getUniformLocation(prog, "asp"), uCol: gl.getUniformLocation(prog, "uCol") };
+    gl.enable(gl.DEPTH_TEST); requestAnimationFrame(render);
+}
+
+function render() {
+    const dpr = window.devicePixelRatio || 1;
+    if (gl.canvas.width !== gl.canvas.clientWidth * dpr) { gl.canvas.width = gl.canvas.clientWidth * dpr; gl.canvas.height = gl.canvas.clientHeight * dpr; gl.viewport(0,0,gl.canvas.width,gl.canvas.height); }
+    gl.clearColor(0.9, 0.92, 0.95, 1.0); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    if(count > 0) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+        gl.enableVertexAttribArray(locs.p); gl.vertexAttribPointer(locs.p, 3, gl.FLOAT, false, 24, 0);
+        gl.enableVertexAttribArray(locs.n); gl.vertexAttribPointer(locs.n, 3, gl.FLOAT, false, 24, 12);
+        const sy=Math.sin(rotY), cy=Math.cos(rotY), sx=Math.sin(rotX), cx=Math.cos(rotX);
+        gl.uniformMatrix4fv(locs.m, false, [cy*zoom, sx*sy*zoom, -cx*sy*zoom, 0, 0, cx*zoom, sx*zoom, 0, sy*zoom, -sx*cy*zoom, cx*cy*zoom, 0, 0, 0, 0, 1]);
+        gl.uniform1f(locs.asp, gl.canvas.width/gl.canvas.height);
+        gl.uniform3fv(locs.uCol, meshColor);
+        gl.drawArrays(gl.TRIANGLES, 0, count);
+    }
+    requestAnimationFrame(render);
+}
+
+function autoCalculate() {
+    if(!realVol) return;
+    const dens = parseFloat(document.getElementById('manual-dens').value) || 1;
+    const pKg = parseFloat(document.getElementById('manual-price').value) || 0;
+    const netW = realVol * dens * parseFloat(document.getElementById('infill').value);
+    const totalW = netW * parseFloat(document.getElementById('waste').value);
+    let total = ((totalW/1000 * pKg + (parseFloat(document.getElementById('manual-time').value)||0) * CONFIG.HOURLY) * CONFIG.MARGIN);
+    total = (total + (parseFloat(document.getElementById('modelling').value)||0)) * (parseFloat(document.getElementById('region').value)||1) * (parseFloat(document.getElementById('urgent').value)||1);
+    if(parseFloat(document.getElementById('discount').value) > 0) total *= (1 - parseFloat(document.getElementById('discount').value)/100);
+    document.getElementById('price-val').innerText = Math.round(total).toLocaleString() + ' ₽';
+    document.getElementById('st-w-net').innerText = netW.toFixed(2) + ' г'; 
+    document.getElementById('st-w-total').innerText = totalW.toFixed(2) + ' г'; 
+    document.getElementById('st-v').innerText = realVol.toFixed(2) + ' см³';
+}
+
+function syncMatPrice() {
+    const s = document.getElementById('mat'); if(!s.value) return;
+    const val = s.value.split("|");
+    document.getElementById('manual-dens').value = val[0];
+    document.getElementById('manual-price').value = val[1];
+    autoCalculate();
+}
+
+function updateMaterials() {
+    const t = document.getElementById('tech').value;
+    const mS = document.getElementById('mat'); mS.innerHTML = "";
+    CONFIG.MATERIALS[t].forEach(m => mS.add(new Option(m.n, `${m.d}|${m.p}`)));
+    syncMatPrice();
+}
+
+function setMeshColor(r, g, b) { meshColor = [r, g, b]; }
+document.getElementById('style-trigger').onclick = e => { const m = document.getElementById('style-menu'); m.style.display = m.style.display==='flex'?'none':'flex'; e.stopPropagation(); };
+
+document.getElementById('f-inp').onchange = e => {
+    if(!e.target.files.length) return;
+    document.getElementById('loader').style.display = 'flex';
+    const r = new FileReader(); r.onload = () => worker.postMessage(r.result, [r.result]); r.readAsArrayBuffer(e.target.files[0]);
+};
+
+worker.onmessage = e => {
+    document.getElementById('loader').style.display = 'none';
+    const { pts, vol } = e.data; realVol = vol;
+    if(vbo) gl.deleteBuffer(vbo); vbo = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, vbo); gl.bufferData(gl.ARRAY_BUFFER, pts, gl.STATIC_DRAW);
+    count = pts.length / 6; autoCalculate();
+};
+
+window.onload = () => {
+    [{n:"Шарыпово (Локал)",v:1}, {n:"РФ (Доставка)",v:1.2}].forEach(r => document.getElementById('region').add(new Option(r.n, r.v)));
+    [{n:"Чистая (x1.0)",v:1}, {n:"Сложная (+15%)",v:1.15}].forEach(w => document.getElementById('waste').add(new Option(w.n, w.v)));
+    for(let i=5; i<=100; i+=5) document.getElementById('infill').add(new Option(i+'%', i/100));
+    document.getElementById('infill').value = "0.2";
+    [{n:"Обычная",v:1}, {n:"Срочно (+60%)",v:1.6}].forEach(u => document.getElementById('urgent').add(new Option(u.n, u.v)));
+    updateMaterials(); initGL();
+};
+
+const cvs = document.getElementById('glCanvas');
+cvs.onpointerdown = e => { cvs.setPointerCapture(e.pointerId); isDown = true; };
+cvs.onpointerup = e => isDown = false;
+cvs.onpointermove = e => { if (isDown) { rotY += e.movementX * 0.01; rotX += e.movementY * 0.01; } };
+cvs.onwheel = e => { e.preventDefault(); zoom = Math.min(Math.max(zoom - e.deltaY * 0.001, 0.2), 5); };
+</script>
+</body>
+</html>
+``` [INDEX]
